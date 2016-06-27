@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <style>
+    </style>
+  </head>
+  <body>
+    <calendar></calendar>
+    <script src="js/calendar.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/2.4.1/riot+compiler.min.js"></script>
+    <script type="riot/tag">
+        <calendar>
+            <table>
+                <thead>
+                    <tr><td colspan="7"><button onclick={previousMonth}>&lt;-</button>{this.year}年{this.month + 1}月<button onclick={nextMonth}>-&gt;</button></td></tr>
+                    <tr><th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th></tr>
+                </thead>
+                <tbody>
+                    <tr each={week in calendar.weeks}><td each={date in week}>{date}</td></tr>
+                </tbody>
+            </table>
+            <style scoped>
+                .header {
+                    text-align: center;
+                }
+                    text-align: center;
+                }
+                button {
+                    margin: 0 10px;
+                    cursor: pointer;
+                    border: 1px solid #444;
+                    padding: 2px 10px;
+                }
+                button:first-of-type {
+                    border-radius: 3px 0 0 3px;
+                }
+                button:last-of-type {
+                    border-radius: 0 3px 3px 0;
+                }
+                table td, table th{
+                    padding: 10px;
+                    background: #eee;
+                }
+            </style>
+            <script>
+            this.year = new Date().getFullYear();
+            this.month = new Date().getMonth();
+            this.calendar = new Calendar(this.year, this.month);
+            previousMonth() {
+                this.month--;
+                if (this.month < 0) {
+                    this.year--;
+                    this.month += 12;
+                }
+                this.calendar = new Calendar(this.year, this.month);
+            }
+            nextMonth() {
+                this.month++;
+                if (this.month > 11) {
+                    this.year++;
+                    this.month -= 12;
+                }
+                this.calendar = new Calendar(this.year, this.month);
+            }
+        </calendar>
+    </script>
+    <script>
+      riot.mount('*')
+    </script>
+  </body>
+</html>
