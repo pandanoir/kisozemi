@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  </head>
+  <body>
+    <h1>declare</h1>
+    <p>
+        expression:= selector: value
+    </p>
+    <p>
+        selector: year | month | date | day | not | is | yesterday | range
+    </p>
+    <p>
+        value: Number | String | Range | Others
+    </p>
+    <p>
+        AndExpression:= <i>expression</i> ((&amp;&amp; | and)? <i>expression)?</i>
+    </p>
+    <p>
+        OrExpression:= <i>AndExpression</i> ((|| | or) <i>AndExpression)?</i>
+    </p>
+    <h1>example</h1>
+    <ul>
+        <li>date: 13 day: 3rd-wednesday</li>
+        <li>date: 13</li>
+        <li>day: wednesday</li>
+        <li>month: 5 date: 5</li>
+        <li>year: leap-year month: 2 date: 29</li>
+        <li>year: leap-year month: 5</li>
+    </ul>
+  </body>
+</html>
