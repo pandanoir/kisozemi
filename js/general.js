@@ -8,3 +8,4 @@ function binarySearch(arr, value) {
     }
     return -1;
 }
+var request = window.superagent;
