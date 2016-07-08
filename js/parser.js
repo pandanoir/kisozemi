@@ -6,8 +6,8 @@
 //   range
 
 'use strict';
-//var Parsimmon = require('parsimmon');
-//var shuntingYard = require('./shuntingyard.js');
+// var Parsimmon = require('parsimmon');
+// var shuntingYard = require('./shuntingyard.js');
 
 var join = function(_) {return _.join('')};
 var flatten = function(a, b) {return a.concat(b)};
@@ -28,20 +28,25 @@ var fullDate = seq(year, s('/'), month, s('/'), date).map(join);
 
 var DAY_REGEXP = /(?:(1st|2nd|3rd|[4-9]th)[\- ])?(sun(?:day)?|mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?)/i;
 
+
 var primaryExpression = lazy(function() {
-    return alt(
-        alt(
+    var selector = lazy(function() {
+        return alt(
             seq(s('year').skip(s(':')).skip(ws), alt(year, s('leap-year'))),
             seq(s('month').skip(s(':')).skip(ws), month),
             seq(s('date').skip(s(':')).skip(ws), alt(date, s('vernal-equinox-day'), s('autumnal-equinox-day'), s('full-moon-night'))),
             seq(s('day').skip(s(':')).skip(ws), regex(DAY_REGEXP)),
-            seq(s('range').skip(s(':')).skip(ws), seq(fullDate.times(0, 1), s('.').times(2, 3).result('...'), fullDate.times(0, 1)).map(join))
+            seq(s('range').skip(s(':')).skip(ws), seq(fullDate.times(0, 1), s('.').times(2, 3).result('...'), fullDate.times(0, 1)).map(join)),
+            seq(s('not').skip(s(':')).skip(ws), selector.map(function(_) {return _[0].value}))
         ).map(function(x) {
             return [{
                 value: x,
                 type: 'primary'
             }];
-        }),
+        });
+    });
+    return alt(
+        selector,
         seq(s('(').skip(ws).result({value: '(', type: 'left-parenthesis'}), expression, s(')').result({value: ')', type: 'right-parenthesis'})).map(function(x) {return x.reduce(flatten, [])})
     );
 });
@@ -171,6 +176,8 @@ function evaluateSelector(primary, date) {
             res = res && end - date >= 0;
         }
         return res;
+    } else if (selector === 'not') {
+        return !evaluateSelector(value, date);
     }
     return false;
 }
