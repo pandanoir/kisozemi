@@ -19,19 +19,20 @@ $db_selected = $mysqli->select_db('rabbitplot');
 if (!$db_selected){
     die('データベース選択失敗です。' . $mysqli->error);
 }
-$result = $mysqli->query("SELECT userID FROM user WHERE screen_name = '${screen_name}'");
-if (!$result) {
-    die('クエリーが失敗しました。' . $mysqli->error);
+if ($stmt = $mysqli->prepare('SELECT userID FROM user WHERE screen_name = ?')) {
+    $stmt->bind_param('s', $screen_name);
+    $stmt->execute();
+    $stmt->bind_result($userID);
+    $stmt->fetch();
+    $stmt->close();
+    $userID = intval($userID);
 }
-$userinfo = $result->fetch_assoc();
-$result->free();
-$userID = $userinfo['userID'];
 
-$result = $mysqli->query("DELETE FROM follow_relation WHERE userID = ${userID} AND groupID = ${groupID}");
-if (!$result) {
-    die('クエリーが失敗しました。' . $mysqli->error);
+if ($stmt = $mysqli->prepare('DELETE FROM follow_relation WHERE userID=? AND groupID=?')) {
+    $stmt->bind_param('ii', $userID, $groupID);
+    $stmt->execute();
+    $stmt->close();
 }
-$result->free();
 
 $mysqli->close();
 

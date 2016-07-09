@@ -16,15 +16,18 @@ $db_selected = $mysqli->select_db('rabbitplot');
 if (!$db_selected){
     die('データベース選択失敗です。' . $mysqli->error);
 }
-$result = $mysqli->query("SELECT groupID FROM `group` WHERE name LIKE '${keyword}%'");
-if (!$result) {
-    die('クエリーが失敗しました。' . $mysqli->error);
+
+if ($stmt = $mysqli->prepare('SELECT groupID FROM `group` WHERE name LIKE ?')) {
+    $res = array();
+    $keyword = $keyword . '%';
+    $stmt->bind_param('s', $keyword);
+    $stmt->execute();
+    $stmt->bind_result($groupID);
+    while ($stmt->fetch()) {
+        $res[] = $groupID;
+    }
+    $stmt->close();
 }
-$res = array();
-while ($row = $result->fetch_assoc()) {
-    $res[] = $row['groupID'];
-}
-$result->free();
 $mysqli->close();
 
 print('[' . join(',', $res) . ']');

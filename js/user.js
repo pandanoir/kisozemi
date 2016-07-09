@@ -12,7 +12,7 @@ User.prototype.follow = function(groupID) {
     if (binarySearch(this.followList, groupID) === -1) {
         request.post('follow.php')
             .type('form')
-            .send({groupID: '' + groupID, 'screen_name': this.screenName, 'hogefuga': 'hogefuga'})
+            .send({groupID: '' + groupID, 'screen_name': this.screenName})
             .end(function(err, res) {console.log(res.text)});
         this.followList.push(groupID);
         this.followList.sort(function(a, b) {return a - b});

@@ -16,12 +16,14 @@ function getUserInfoBy($screen_name) {
     if (!$db_selected){
         die('データベース選択失敗です。' . $mysqli->error);
     }
-    $result = $mysqli->query("SELECT userID, screen_name, name FROM user WHERE screen_name = '${screen_name}'");
-    if (!$result) {
-        die('クエリーが失敗しました。' . $mysqli->error);
+    if ($stmt = $mysqli->prepare('SELECT userID, screen_name, name FROM user WHERE screen_name = ?')) {
+        $userinfo = array();
+        $stmt->bind_param('s', $screen_name);
+        $stmt->execute();
+        $stmt->bind_result($userinfo['userID'], $userinfo['screen_name'], $userinfo['name']);
+        $stmt->fetch();
+        $stmt->close();
     }
-    $userinfo = $result->fetch_assoc();
-    $result->free();
     $mysqli->close();
     return $userinfo;
 }
@@ -36,15 +38,16 @@ function getFollowRelation($userID) {
     if (!$db_selected){
         die('データベース選択失敗です。' . $mysqli->error);
     }
-    $result = $mysqli->query("SELECT groupID FROM follow_relation WHERE userID = ${userID} ORDER BY groupID");
-    if (!$result) {
-        die('クエリーが失敗しました。' . $mysqli->error);
+    if ($stmt = $mysqli->prepare('SELECT groupID FROM follow_relation WHERE userID = ? ORDER BY groupID')){
+        $res = array();
+        $stmt->bind_param('i', $userID);
+        $stmt->execute();
+        $stmt->bind_result($groupID);
+        while ($stmt->fetch()) {
+            $res[] = intval($groupID);
+        }
+        $stmt->close();
     }
-    $res = array();
-    while ($row = $result->fetch_assoc()) {
-        $res[] = intval($row['groupID']);
-    }
-    $result->free();
     $mysqli->close();
     return $res;
 }
@@ -208,8 +211,8 @@ function getFollowRelation($userID) {
                 });
             }
             follow(e) {
-                opts.user.follow(e.item.groupID);
-                opts.listener.trigger('follow', e.item.groupID);
+                opts.user.follow(e.item.id);
+                opts.listener.trigger('follow', e.item.id);
             }
         </my-search>
     </script>
@@ -268,16 +271,18 @@ print("'${screen_name}', '${name}', [" . join(', ', $follow_relation) . "]");
         option.groups = [];
         option.listener.on('follow', function(groupID) {
             if (groupID) {
-                API.getEvents([groupID]).then(function(value) {
-                    option.events.push.apply(option.events, value);
-                    option.listener.trigger('update_event_list');
-                });
-                API.getGroups([groupID]).then(function(value) {
-                    for (var i = 0, _i = value.length; i < _i; i++) {
-                        option.groups[value[i].groupID] = value[i];
-                    }
-                    option.listener.trigger('update_group_list');
-                });
+                if (!option.groups[value[i].groupID]) {
+                    API.getEvents([groupID]).then(function(value) {
+                        option.events.push.apply(option.events, value);
+                        option.listener.trigger('update_event_list');
+                    });
+                    API.getGroups([groupID]).then(function(value) {
+                        for (var i = 0, _i = value.length; i < _i; i++) {
+                            option.groups[value[i].groupID] = value[i];
+                        }
+                        option.listener.trigger('update_group_list');
+                    });
+                }
             }
         });
         API.getGroups(option.user.followList).then(function(value) {

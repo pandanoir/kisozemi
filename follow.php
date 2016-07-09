@@ -19,20 +19,19 @@ $db_selected = $mysqli->select_db('rabbitplot');
 if (!$db_selected){
     die('データベース選択失敗です。' . $mysqli->error);
 }
-$result = $mysqli->query("SELECT userID FROM user WHERE screen_name = '${screen_name}'");
-if (!$result) {
-    die('クエリーが失敗しました。' . $mysqli->error);
+if ($stmt = $mysqli->prepare("SELECT userID FROM user WHERE screen_name = ?")) {
+    $stmt->bind_param('s', $screen_name);
+    $stmt->execute();
+    $stmt->bind_result($userID);
+    $stmt->fetch();
+    $stmt->close();
 }
-$userinfo = $result->fetch_assoc();
-$result->free();
-$userID = $userinfo['userID'];
 
-$result = $mysqli->query("INSERT INTO follow_relation VALUES(${userID}, ${groupID})");
-if (!$result) {
-    die('クエリーが失敗しました。' . $mysqli->error);
+if ($stmt = $mysqli->prepare('INSERT INTO follow_relation VALUES(?,?)')) {
+    $stmt->bind_param('ii', $userID, $groupID);
+    $stmt->execute();
+    $stmt->close();
 }
-$result->free();
-
 $mysqli->close();
 
 print('success');

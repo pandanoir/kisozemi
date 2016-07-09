@@ -15,14 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$db_selected){
         die('データベース選択失敗です。' . $mysqli->error);
     }
-    $result = $mysqli->query("SELECT COUNT(*) AS count FROM user WHERE screen_name='${username}'");
-    if (!$result) {
-        die('クエリーが失敗しました。' . $mysqli->error);
+    if ($stmt = $mysqli->prepare('SELECT COUNT(*) FROM user WHERE screen_name=?')) {
+        $hashes = [];
+        $stmt->bind_param('s', $screen_name);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
     }
-    $hashes = [];
-    $row = $result->fetch_assoc();
-    $count = $row['count'];
-    print($count === '0');
 
     if (
         validate_token(filter_input(INPUT_POST, 'token')) &&
@@ -44,11 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // セッションIDの追跡を防ぐ
         session_regenerate_id(true);
         // ユーザ名をセット
-        $result = $mysqli->query("INSERT INTO user VALUES(${userID}, '${screen_name}', '${name}', '${password}')");
-        if (!$result) {
-            die('クエリーが失敗しました。' . $mysqli->error);
+        if ($stmt = $mysqli->prepare("INSERT INTO user VALUES(?,?,?,?)")) {
+            $stmt->bind_param('isss', $userID} $screen_name, $name, $password);
+            $stmt->execute();
+            $stmt->close();
+            $_SESSION['screen_name'] = $screen_name;
         }
-        $_SESSION['screen_name'] = $screen_name;
         $mysqli->close();
         // ログイン完了後に / に遷移
         header('Location: ./');
@@ -68,9 +69,9 @@ header('Content-Type: text/html; charset=UTF-8');
     <body>
         <h1>新規ユーザ登録</h1>
         <form method="post" action="">
-            ユーザID: <input type="text" name="screen_name" value="pandanoir">(登録後変更できません。英数字、アンダーバーのみ使用可能です)<br>
-            ユーザ名: <input type="text" name="name" value="クロパンダ"><br>
-            パスワード: <input type="password" name="password" value="password"><br>
+            ユーザID: <input type="text" name="screen_name" value="">(登録後変更できません。英数字、アンダーバーのみ使用可能です)<br>
+            ユーザ名: <input type="text" name="name" value=""><br>
+            パスワード: <input type="password" name="password" value=""><br>
             <input type="hidden" name="token" value="<?=h(generate_token())?>">
             <input type="submit" value="登録">
         </form>

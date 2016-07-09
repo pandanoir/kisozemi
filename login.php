@@ -19,13 +19,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$db_selected){
         die('データベース選択失敗です。' . $mysqli->error);
     }
-    $result = $mysqli->query("SELECT screen_name, password FROM user WHERE screen_name='${screen_name}'");
-    if (!$result) {
-        die('クエリーが失敗しました。' . $mysqli->error);
-    }
-    $hashes = [];
-    while ($row = $result->fetch_assoc()) {
-        $hashes[$row['screen_name']] = $row['password'];
+    if ($stmt = $mysqli->prepare('SELECT password FROM user WHERE screen_name=?')) {
+        $hashes = [];
+        $stmt->bind_param('s', $screen_name);
+        $stmt->execute();
+        $stmt->bind_result($_password);
+        while ($stmt->fetch()) {
+            $hashes[$screen_name] = $_password;
+        }
+        $stmt->close();
     }
     $mysqli->close();
 
