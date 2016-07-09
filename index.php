@@ -76,7 +76,7 @@ function getFollowRelation($userID) {
     <my-user-info></my-user-info>
     <script src="node_modules/parsimmon/build/parsimmon.browser.min.js"></script>
     <script src="https://wzrd.in/standalone/superagent@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/2.4.1/riot+compiler.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/2.4.1/riot.min.js"></script>
     <script src="https://npmcdn.com/riotcontrol@0.0.3"></script>
     <script src="js/general.js"></script>
     <script src="js/calendar.js"></script>
@@ -86,9 +86,9 @@ function getFollowRelation($userID) {
     <script src="js/user.js"></script>
     <script src="js/events.js"></script>
     <script src="js/api.js"></script>
-    <script type="riot/tag" src="tags/calendar.js"></script>
-    <script type="riot/tag" src="tags/search.js"></script>
-    <script type="riot/tag" src="tags/userinfo.js"></script>
+    <script src="tags/calendar.js"></script>
+    <script src="tags/search.js"></script>
+    <script src="tags/userinfo.js"></script>
     <script>
         var userStore = new User(<?php
 $screen_name = $_SESSION['screen_name'];
