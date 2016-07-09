@@ -77,6 +77,7 @@ function getFollowRelation($userID) {
     <script src="node_modules/parsimmon/build/parsimmon.browser.min.js"></script>
     <script src="https://wzrd.in/standalone/superagent@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/2.4.1/riot+compiler.min.js"></script>
+    <script src="https://npmcdn.com/riotcontrol@0.0.3"></script>
     <script src="js/general.js"></script>
     <script src="js/calendar.js"></script>
     <script src="js/shuntingyard.js"></script>
@@ -89,14 +90,16 @@ function getFollowRelation($userID) {
         <my-calendar>
             <table>
                 <thead>
-                    <tr><td colspan="7"><button onclick={previousMonth}>&lt;-</button>{this.year}年{this.month + 1}月<button onclick={nextMonth}>-&gt;</button></td></tr>
+                    <tr><td colspan="7"><button onclick={previousMonth}>&lt;-</button>{year}年{month + 1}月<button onclick={nextMonth}>-&gt;</button></td></tr>
                     <tr><th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th></tr>
                 </thead>
                 <tbody>
-                    <tr each={week in calendar.weeks}><td each={date in week} onclick={select} class={booked: isBooked(date)}>{date}</td></tr>
+                    <tr each={week in calendar.weeks}>
+                        <td each={date in week} onclick={select} class={booked: isBooked[date === '' ? 0 : date]}>{date}</td>
+                    </tr>
                 </tbody>
             </table>
-            {this.month + 1}月{this.selected.date}日
+            {month + 1}月{selected.date}日
             <ul>
                 <li each = {event in events}>{event.title}</li>
                 <li if = {events.length === 0}>予定なし</li>
@@ -119,54 +122,112 @@ function getFollowRelation($userID) {
                 }
             </style>
             <script>
-            var self = this;
-            var eventList = filterByID(filterByID(opts.events, opts.user.followList), opts.user.hiddenGroup, true);
-            this.on('select', function() {
-                this.events = getEvents(new Date(this.year, this.month, this.selected.date));
-            });
-            opts.listener.on('follow update_event_list', function() {
-                eventList = filterByID(filterByID(opts.events, opts.user.followList), opts.user.hiddenGroup, true);
-                self.update();
-            });
-            this.year = new Date().getFullYear();
-            this.month = new Date().getMonth();
-            this.selected = {date: new Date().getDate()};
-            this.follow = opts.user.followList;
-            this.calendar = new Calendar(this.year, this.month);
-            this.trigger('select');
-            previousMonth() {
-                this.month--;
-                if (this.month < 0) {
-                    this.year--;
-                    this.month += 12;
-                }
-                this.selected = {date: 1};
+            var calendarStore = new function() {
+                var self = this;
+                var eventList = filterByID(filterByID(eventsStore.getEventList(), userStore.getFollowList()), userStore.getHiddenGroup(), true);
+                
+                riot.observable(this);
+                this.year = new Date().getFullYear();
+                this.month = new Date().getMonth();
+                this.selected = {date: new Date().getDate()};
                 this.calendar = new Calendar(this.year, this.month);
-                this.trigger('select');
+                this.events = getEvents(new Date(this.year, this.month, this.selected.date));
+                this.bookedList = getBookedList(this.calendar.weeks);
+                this.fields = ['year', 'month', 'selected', 'calendar', 'bookedList', 'events'];
+                this.previousMonth = function() {
+                    this.month--;
+                    if (this.month < 0) {
+                        this.year--;
+                        this.month += 12;
+                    }
+                    this.selected = {date: 1};
+                    this.calendar = new Calendar(this.year, this.month);
+                    this.events = getEvents(new Date(this.year, this.month, this.selected.date));
+                    RiotControl.trigger(this.actionTypes.changed);
+                };
+                this.nextMonth = function() {
+                    this.month++;
+                    if (this.month > 11) {
+                        this.year++;
+                        this.month -= 12;
+                    }
+                    this.selected = {date: 1};
+                    this.calendar = new Calendar(this.year, this.month);
+                    this.events = getEvents(new Date(this.year, this.month, this.selected.date));
+                    RiotControl.trigger(this.actionTypes.changed);
+                };
+                this.select = function(date) {
+                    if (date !== ''){
+                        this.selected.date = date;
+                        this.events = getEvents(new Date(this.year, this.month, this.selected.date));
+                        RiotControl.trigger(this.actionTypes.changed);
+                    }
+                };
+                this.fields.forEach(function(item) {
+                    // self['getYear'] = function() {return self['year']};
+                    self['get' + item.charAt(0).toUpperCase() + item.slice(1)] = function() {return self[item]};
+                });
+                this.actionTypes = {
+                    changed: 'calendar_store_changed'
+                };
+                this.on('previousMonth', this.previousMonth.bind(this));
+                this.on('nextMonth', this.nextMonth.bind(this));
+                this.on('select', this.select.bind(this));
+                this.on('follow unfollow show hide ' + eventsStore.actionTypes.changed, function() {
+                    eventList = filterByID(filterByID(eventsStore.getEventList(), userStore.getFollowList()), userStore.getHiddenGroup(), true);
+                    self.events = getEvents(new Date(self.year, self.month, self.selected.date));
+                    self.bookedList = getBookedList(self.calendar.weeks);
+                    RiotControl.trigger(self.actionTypes.changed);
+                });
+                function getEvents(date) {
+                    return filter(eventList, date);
+                }
+                function getBookedList(weeks) {
+                    var res = [];
+                    res[0] = false;
+                    for (var i = 0, _i = weeks.length; i < _i; i++) {
+                        for (var j = 0, _j = weeks[i].length; j < _j; j++) {
+                            if (weeks[i][j] !== '') res[weeks[i][j]] = getEvents(new Date(self.year, self.month, weeks[i][j])).length > 0;
+                        }
+                    }
+                    return res;
+                }
+            };
+            RiotControl.addStore(calendarStore);
+            var action = new function() {
+                this.previousMonth = function() {
+                    RiotControl.trigger('previousMonth');
+                };
+                this.nextMonth = function() {
+                    RiotControl.trigger('nextMonth');
+                };
+                this.select = function(date) {
+                    RiotControl.trigger('select', date);
+                };
+            };
+            var self = this;
+            calendarStore.fields.forEach(function(item) {
+                // self['year'] = calendarStore['getYear']();
+                self[item] = calendarStore['get' + item.charAt(0).toUpperCase() + item.slice(1)]();
+            });
+            this.isBooked = calendarStore.getBookedList();
+
+            previousMonth() {
+                action.previousMonth();
             }
             nextMonth() {
-                this.month++;
-                if (this.month > 11) {
-                    this.year++;
-                    this.month -= 12;
-                }
-                this.selected = {date: 1};
-                this.calendar = new Calendar(this.year, this.month);
-                this.trigger('select');
-            }
-            function getEvents(date) {
-                return filter(eventList, date);
+                action.nextMonth();
             }
             select(e) {
-                if (e.item.date !== '') {
-                    this.selected.date = e.item.date;
-                    this.trigger('select');
-                }
+                action.select(e.item.date);
             }
-            isBooked(date) {
-                if (date === '') return false;
-                return getEvents(new Date(this.year, this.month, date)).length > 0;
-            }
+            RiotControl.on(calendarStore.actionTypes.changed, function() {
+                calendarStore.fields.forEach(function(item) {
+                    self[item] = calendarStore['get' + item.charAt(0).toUpperCase() + item.slice(1)]();
+                });
+                self.isBooked = calendarStore.getBookedList();
+                self.update();
+            });
         </my-calendar>
     </script>
     <script type="riot/tag">
@@ -181,83 +242,125 @@ function getFollowRelation($userID) {
             </style>
             <script>
             var self = this;
-            this.searching = false;
-            this.groups = opts.groups;
-            this.result = [];
+            var searchStore = new function() {
+                var self = this;
+                riot.observable(this);
+                this.searching = false;
+                this.result = [];
+                this.fields = ['searching', 'result'];
+                this.actionTypes = {
+                    changed: 'search_store_changed'
+                };
+                this.fields.forEach(function(item) {
+                    // self['getYear'] = function() {return self['year']};
+                    self['get' + item.charAt(0).toUpperCase() + item.slice(1)] = function() {return self[item]};
+                });
+                this.on('search', function(keyword) {
+                    this.searching = true;
+                    this.result = [];
+                    RiotControl.trigger(self.actionTypes.changed);
+                    API.search(keyword).then(function(groupIDs) {
+                        self.result = groupIDs;
+                        groupsStore.fetchGroups(self.result).then(function() {
+                            self.searching = false;
+                            RiotControl.trigger(self.actionTypes.changed);
+                        });
+                    });
+                })
+            };
+            RiotControl.addStore(searchStore);
+            this.groups = groupsStore.getGroupList();
+            searchStore.fields.forEach(function(item) {
+                // self['year'] = searchStore['getYear']();
+                self[item] = searchStore['get' + item.charAt(0).toUpperCase() + item.slice(1)]();
+            });
+
+            var action = new function() {
+                this.follow = function(id) {
+                    RiotControl.trigger('follow', id);
+                };
+                this.search = function(keyword) {
+                    RiotControl.trigger('search', keyword);
+                };
+            };
+            RiotControl.on(searchStore.actionTypes.changed, function() {
+                searchStore.fields.forEach(function(item) {
+                    // self['year'] = searchStore['getYear']();
+                    self[item] = searchStore['get' + item.charAt(0).toUpperCase() + item.slice(1)]();
+                });
+                self.update();
+            });
+            RiotControl.on(groupsStore.actionTypes.changed, function() {
+                self.groups = groupsStore.getGroupList();
+                self.update();
+            });
+
             search() {
                 var keyword = this.keyword.value;
-                this.searching = true;
-                this.result = [];
-                API.search(keyword).then(function(groupIDs) {
-                    self.result = groupIDs;
-                    var missing = [];
-                    for (var i = 0, _i = groupIDs.length; i < _i; i++) {
-                        if (!opts.groups[groupIDs[i]]) {
-                            missing.push(groupIDs[i]);
-                        }
-                    }
-                    if (missing.length > 0) {
-                        API.getGroups(missing).then(function(value) {
-                            for (var i = 0, _i = value.length; i < _i; i++) {
-                                opts.groups[value[i].groupID] = value[i];
-                            }
-                            self.searching = false;
-                            self.update();
-                        });
-                    } else {
-                        self.searching = false;
-                        self.update();
-                    }
-                });
+                action.search(keyword);
             }
             follow(e) {
-                opts.user.follow(e.item.id);
-                opts.listener.trigger('follow', e.item.id);
+                action.follow(e.item.id);
             }
         </my-search>
     </script>
     <script type="riot/tag">
         <my-user-info>
-            {user.name}(@{user.screenName})<a href="./logout.php?token=<?=h(generate_token())?>">ログアウト</a><br>
+            {name}(@{screenName})<a href="./logout.php?token=<?=h(generate_token())?>">ログアウト</a><br>
             フォローしているグループ
             <ul>
-                <li each={id in user.followList}>
+                <li each={id in followList}>
                     {groups[id].name}
                     <button onclick={unfollow} if={id >= 10}>フォロー解除</button>
-                    <button onclick={user.hiddenGroup.indexOf(id) === -1 ? hidden : show}>{user.hiddenGroup.indexOf(id) === -1 ? '非' : ''}表示にする</button>
+                    <button onclick={hiddenGroup.indexOf(id) === -1 ? hide : show}>{hiddenGroup.indexOf(id) === -1 ? '非' : ''}表示にする</button>
                 </li>
             </ul>
             <style scoped>
             </style>
             <script>
             var self = this;
-            this.user = opts.user;
-            this.groups = opts.groups;
-            opts.listener.on('follow update_group_list', function() {
+            this.name = userStore.getName();
+            this.screenName = userStore.getScreenName();
+            this.followList = userStore.getFollowList();
+            this.hiddenGroup = userStore.getHiddenGroup();
+            this.groups = groupsStore.getGroupList();
+            RiotControl.on('follow unfollow hide show ' + groupsStore.actionTypes.changed, function() {
+                self.followList = userStore.getFollowList();
+                self.hiddenGroup = userStore.getHiddenGroup();
                 self.update();
-            })
-            search() {
-                var keyword = this.keyword.value;
-                this.result = opts.groups.filter(function(item) {return item.name.indexOf(keyword) !== -1;});
-            }
+            });
+            RiotControl.on(groupsStore.actionTypes.changed, function() {
+                self.name = userStore.getName();
+                self.screenName = userStore.getScreenName();
+                self.followList = userStore.getFollowList();
+                self.hiddenGroup = userStore.getHiddenGroup();
+                self.groups = groupsStore.getGroupList();
+                self.update();
+            });
+            var action = new function() {
+                this.unfollow = function(id) {
+                    RiotControl.trigger('unfollow', id);
+                };
+                this.hide = function(id) {
+                    RiotControl.trigger('hide', id);
+                };
+                this.show = function(id) {
+                    RiotControl.trigger('show', id);
+                };
+            };
             unfollow(e) {
-                opts.user.unfollow(e.item.id);
-                opts.listener.trigger('follow');
+                action.unfollow(e.item.id);
             }
-            hidden(e) {
-                opts.user.hide(e.item.id);
-                opts.listener.trigger('follow');
+            hide(e) {
+                action.hide(e.item.id);
             }
             show(e) {
-                opts.user.show(e.item.id);
-                opts.listener.trigger('follow');
+                action.show(e.item.id);
             }
         </my-user-info>
     </script>
     <script>
-    (function() {
-        var option = {};
-        option.user = new User(<?php
+        var userStore = new User(<?php
 $screen_name = $_SESSION['screen_name'];
 $userInfo = getUserInfoBy($screen_name);
 $userID = $userInfo['userID'];
@@ -266,38 +369,12 @@ $follow_relation = getFollowRelation($userID);
 
 print("'${screen_name}', '${name}', [" . join(', ', $follow_relation) . "]");
 ?>);
-        option.listener = riot.observable();
-        option.events = [];
-        option.groups = [];
-        option.listener.on('follow', function(groupID) {
-            if (groupID) {
-                if (!option.groups[value[i].groupID]) {
-                    API.getEvents([groupID]).then(function(value) {
-                        option.events.push.apply(option.events, value);
-                        option.listener.trigger('update_event_list');
-                    });
-                    API.getGroups([groupID]).then(function(value) {
-                        for (var i = 0, _i = value.length; i < _i; i++) {
-                            option.groups[value[i].groupID] = value[i];
-                        }
-                        option.listener.trigger('update_group_list');
-                    });
-                }
-            }
-        });
-        API.getGroups(option.user.followList).then(function(value) {
-            for (var i = 0, _i = value.length; i < _i; i++) {
-                option.groups[value[i].groupID] = value[i];
-            }
-            option.listener.trigger('update_group_list');
-        });
-        API.getEvents(option.user.followList).then(function(value) {
-            option.events.push.apply(option.events, value);
-            option.listener.trigger('update_event_list');
-        });
-        riot.mount('*', option);
-
-    })();
+        var eventsStore = new Events();
+        var groupsStore = new Groups();
+        RiotControl.addStore(userStore);
+        RiotControl.addStore(eventsStore);
+        RiotControl.addStore(groupsStore);
+        riot.mount('*');
     </script>
   </body>
 </html>

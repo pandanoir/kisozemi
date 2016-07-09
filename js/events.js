@@ -1,4 +1,34 @@
 var events = [];
+function Events() {
+    var self = this;
+    riot.observable(this);
+    this.eventList = [];
+    this.fetchedGroupList = userStore.getFollowList().concat();
+    API.getEvents(userStore.followList).then(function(value) {
+        self.eventList.push.apply(self.eventList, value);
+        RiotControl.trigger(self.actionTypes.changed);
+    });
+    this.on('follow', this.fetchEventList.bind(this));
+}
+Events.prototype.fetchEventList = function(groupID) {
+    var self = this;
+    if (binarySearch(this.fetchedGroupList, groupID) === -1) {
+        this.fetchedGroupList.push(groupID);
+        this.fetchedGroupList.sort(function(a, b) {return a - b});
+        return API.getEvents([groupID]).then(function(value) {
+            self.eventList.push.apply(self.eventList, value);
+            RiotControl.trigger(self.actionTypes.changed);
+        });
+    }
+    return Promise.resolve();
+};
+Events.prototype.getEventList = function() {
+    return this.eventList;
+};
+Events.prototype.actionTypes = {
+    changed: 'events_store_changed'
+};
+
 //events.forEach(_ => (_.transformed = parseExpression(_.selector).map(__ => __.value)));
 /*console.log(
     '[\n' + events.map(_ =>

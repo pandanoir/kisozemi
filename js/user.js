@@ -1,4 +1,5 @@
 function User(screenName, name, followList) {
+    riot.observable(this);
     this.followList = [0, 1];
     if (followList && typeof followList.length === 'number') {
         this.followList = this.followList.concat(followList);
@@ -7,7 +8,23 @@ function User(screenName, name, followList) {
     this.id = 10000; // temp
     this.screenName = screenName;
     this.name = name;
+    this.on('follow', this.follow.bind(this));
+    this.on('unfollow', this.unfollow.bind(this));
+    this.on('show', this.show.bind(this));
+    this.on('hide', this.hide.bind(this));
 }
+User.prototype.getName = function() {
+    return this.name;
+};
+User.prototype.getScreenName = function() {
+    return this.screenName;
+};
+User.prototype.getFollowList = function() {
+    return this.followList;
+};
+User.prototype.getHiddenGroup = function() {
+    return this.hiddenGroup;
+};
 User.prototype.follow = function(groupID) {
     if (binarySearch(this.followList, groupID) === -1) {
         request.post('follow.php')
