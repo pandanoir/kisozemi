@@ -256,16 +256,22 @@ function getFollowRelation($userID) {
                     self['get' + item.charAt(0).toUpperCase() + item.slice(1)] = function() {return self[item]};
                 });
                 this.on('search', function(keyword) {
-                    this.searching = true;
-                    this.result = [];
-                    RiotControl.trigger(self.actionTypes.changed);
-                    API.search(keyword).then(function(groupIDs) {
-                        self.result = groupIDs;
-                        groupsStore.fetchGroups(self.result).then(function() {
-                            self.searching = false;
-                            RiotControl.trigger(self.actionTypes.changed);
+                    if (keyword !== '') {
+                        this.searching = true;
+                        this.result = [];
+                        RiotControl.trigger(self.actionTypes.changed);
+                        API.search(keyword).then(function(groupIDs) {
+                            self.result = groupIDs;
+                            groupsStore.fetchGroups(self.result).then(function() {
+                                self.searching = false;
+                                RiotControl.trigger(self.actionTypes.changed);
+                            });
                         });
-                    });
+                    } else {
+                        this.searching = false;
+                        this.result = [];
+                        RiotControl.trigger(self.actionTypes.changed);
+                    }
                 })
             };
             RiotControl.addStore(searchStore);
