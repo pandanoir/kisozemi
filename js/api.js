@@ -5,7 +5,10 @@ API.getGroups = function(groupIDs) {
             .type('form')
             .send({groupIDs: groupIDs.join(',')})
             .end(function(err, res) {
-                res = JSON.parse(res.text);
+                res = JSON.parse(res.text).map(function(_) {
+                    _.screenName = _.screen_name;
+                    return _;
+                })
                 resolve(res);
             });
     });

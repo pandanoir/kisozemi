@@ -235,7 +235,7 @@ function getFollowRelation($userID) {
             <h2>グループを探す</h2>
             <input name="keyword" type="text" value="東北大学"><button onclick={search}>検索</button>
             <ul if={searching == false}>
-                <li each={id in result}>{groups[id].name}<button onclick={follow}>フォロー</button></li>
+                <li each={id in result}>{groups[id].name}<span if={id >= 10}>(@{groups[id].screenName})</span><button onclick={follow} if={id >= 10}>フォロー</button></li>
             </ul>
             <span if={searching == true}>検索中...</span>
             <style scoped>
@@ -310,7 +310,7 @@ function getFollowRelation($userID) {
             フォローしているグループ
             <ul>
                 <li each={id in followList}>
-                    {groups[id].name}
+                    {groups[id].name}<span if={id >= 10}>(@{groups[id].screenName})</span>
                     <button onclick={unfollow} if={id >= 10}>フォロー解除</button>
                     <button onclick={hiddenGroup.indexOf(id) === -1 ? hide : show}>{hiddenGroup.indexOf(id) === -1 ? '非' : ''}表示にする</button>
                 </li>
