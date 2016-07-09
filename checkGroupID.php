@@ -18,17 +18,19 @@ if (!$db_selected){
 }
 
 if (preg_match('/^[0-9a-z_]+$/i', $screen_name) === 1) {
-    $result = $mysqli->query("SELECT COUNT(*) AS count FROM `group` WHERE screen_name='${screen_name}'");
-    if (!$result) {
-        die('クエリーが失敗しました。' . $mysqli->error);
+    if ($stmt = $mysqli->prepare('SELECT COUNT(*) FROM `group` WHERE screen_name=?')) {
+        $stmt->bind_param('s', $screen_name);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+
+        if ($count === '0') {
+            print('available');
+        } else {
+            print('unavailable');
+        }
+        $stmt->close();
     }
-    $row = $result->fetch_assoc();
-    if ($row['count'] === '0') {
-        print('available');
-    } else {
-        print('unavailable');
-    }
-    $result->free();
     $mysqli->close();
 } else {
     print('unavailable');
