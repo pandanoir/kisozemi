@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (
         validate_token(filter_input(INPUT_POST, 'token')) &&
-        $count === '0'
+        $count === 0
     ) {
         $screen_name = filter_input(INPUT_POST, 'screen_name');
         $name = filter_input(INPUT_POST, 'name');
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = password_hash($password, PASSWORD_DEFAULT);
         $userID = 0;
 
-        $result = $mysqli->query("SELECT MAX(userID) AS max FROM user");
+        $result = $mysqli->query('SELECT MAX(userID) AS max FROM user');
         if (!$result) {
             die('クエリーが失敗しました。' . $mysqli->error);
         }

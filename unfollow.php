@@ -25,7 +25,6 @@ if ($stmt = $mysqli->prepare('SELECT userID FROM user WHERE screen_name = ?')) {
     $stmt->bind_result($userID);
     $stmt->fetch();
     $stmt->close();
-    $userID = intval($userID);
 }
 
 if ($stmt = $mysqli->prepare('DELETE FROM follow_relation WHERE userID=? AND groupID=?')) {
