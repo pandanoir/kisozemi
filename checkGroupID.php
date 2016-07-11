@@ -24,7 +24,7 @@ if (preg_match('/^[0-9a-z_]+$/i', $screen_name) === 1) {
         $stmt->bind_result($count);
         $stmt->fetch();
 
-        if ($count === '0') {
+        if ($count === 0) {
             print('available');
         } else {
             print('unavailable');
