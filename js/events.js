@@ -1,33 +1,36 @@
 var events = [];
-function Events() {
-    var self = this;
-    riot.observable(this);
-    this.eventList = [];
-    this.fetchedGroupList = userStore.getFollowList().concat();
-    API.getEvents(userStore.followList).then(function(value) {
-        self.eventList.push.apply(self.eventList, value);
-        RiotControl.trigger(self.actionTypes.changed);
-    });
-    this.on('follow', this.fetchEventList.bind(this));
-}
-Events.prototype.fetchEventList = function(groupID) {
-    var self = this;
-    if (binarySearch(this.fetchedGroupList, groupID) === -1) {
-        this.fetchedGroupList.push(groupID);
-        this.fetchedGroupList.sort(function(a, b) {return a - b});
-        return API.getEvents([groupID]).then(function(value) {
+class Events {
+    constructor() {
+        const self = this;
+        riot.observable(this);
+        this.eventList = [];
+        this.fetchedGroupList = userStore.getFollowList().concat();
+        this.actionTypes = {
+            changed: 'events_store_changed'
+        };
+
+        API.getEvents(userStore.followList).then(function(value) {
             self.eventList.push.apply(self.eventList, value);
             RiotControl.trigger(self.actionTypes.changed);
         });
+        this.on('follow', this.fetchEventList.bind(this));
     }
-    return Promise.resolve();
-};
-Events.prototype.getEventList = function() {
-    return this.eventList;
-};
-Events.prototype.actionTypes = {
-    changed: 'events_store_changed'
-};
+    fetchEventList(groupID) {
+        const self = this;
+        if (binarySearch(this.fetchedGroupList, groupID) === -1) {
+            this.fetchedGroupList.push(groupID);
+            this.fetchedGroupList.sort(function(a, b) {return a - b});
+            return API.getEvents([groupID]).then(function(value) {
+                self.eventList.push.apply(self.eventList, value);
+                RiotControl.trigger(self.actionTypes.changed);
+            });
+        }
+        return Promise.resolve();
+    }
+    getEventList() {
+        return this.eventList;
+    }
+}
 
 //events.forEach(_ => (_.transformed = parseExpression(_.selector).map(__ => __.value)));
 /*console.log(
@@ -36,8 +39,8 @@ Events.prototype.actionTypes = {
     ).join(',\n') + '\n];'
 );*/
 function filterByID(eventList, idList, without) {
-    var res = [];
-    for (var i = 0, _i = eventList.length; i < _i; i++) {
+    const res = [];
+    for (let i = 0, _i = eventList.length; i < _i; i++) {
         var searchRes = binarySearch(idList, eventList[i].groupID);
         if (!without && searchRes !== -1 || without && searchRes === -1) {
             res[res.length] = eventList[i];
@@ -46,8 +49,8 @@ function filterByID(eventList, idList, without) {
     return res;
 }
 function filter(eventList, date) {
-    var res = [];
-    for (var i = 0, _i = eventList.length; i < _i; i++) {
+    const res = [];
+    for (let i = 0, _i = eventList.length; i < _i; i++) {
         if (evaluateExpression(eventList[i].transformed, date)) {
             res[res.length] = eventList[i];
         }

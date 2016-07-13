@@ -11,43 +11,43 @@
     <style scoped>
     </style>
     <script>
-    var self = this;
     this.name = userStore.getName();
     this.screenName = userStore.getScreenName();
     this.followList = userStore.getFollowList();
     this.hiddenGroup = userStore.getHiddenGroup();
     this.groups = groupsStore.getGroupList();
-    RiotControl.on('follow unfollow hide show ' + groupsStore.actionTypes.changed, function() {
-        self.followList = userStore.getFollowList();
-        self.hiddenGroup = userStore.getHiddenGroup();
-        self.update();
+    RiotControl.on('follow unfollow hide show ' + groupsStore.actionTypes.changed, () => {
+        this.followList = userStore.getFollowList();
+        this.hiddenGroup = userStore.getHiddenGroup();
+        this.update();
     });
-    RiotControl.on(groupsStore.actionTypes.changed, function() {
-        self.name = userStore.getName();
-        self.screenName = userStore.getScreenName();
-        self.followList = userStore.getFollowList();
-        self.hiddenGroup = userStore.getHiddenGroup();
-        self.groups = groupsStore.getGroupList();
-        self.update();
+    RiotControl.on(groupsStore.actionTypes.changed, () => {
+        this.name = userStore.getName();
+        this.screenName = userStore.getScreenName();
+        this.followList = userStore.getFollowList();
+        this.hiddenGroup = userStore.getHiddenGroup();
+        this.groups = groupsStore.getGroupList();
+        this.update();
     });
-    var action = new function() {
-        this.unfollow = function(id) {
+    const action = new class Action {
+        constructor() {}
+        unfollow(id) {
             RiotControl.trigger('unfollow', id);
-        };
-        this.hide = function(id) {
+        }
+        hide(id) {
             RiotControl.trigger('hide', id);
-        };
-        this.show = function(id) {
+        }
+        show(id) {
             RiotControl.trigger('show', id);
-        };
+        }
     };
-    unfollow(e) {
+    this.unfollow = (e) => {
         action.unfollow(e.item.id);
-    }
-    hide(e) {
+    };
+    this.hide = (e) => {
         action.hide(e.item.id);
-    }
-    show(e) {
+    };
+    this.show = (e) => {
         action.show(e.item.id);
-    }
+    };
 </my-user-info>
