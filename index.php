@@ -28,7 +28,7 @@ header('Content-Type: text/html; charset=UTF-8');
     <my-search></my-search>
     <my-user-info></my-user-info>
     <script src="node_modules/parsimmon/build/parsimmon.browser.min.js"></script>
-    <script src="https://wzrd.in/standalone/superagent@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/superagent/2.0.0/superagent.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/2.4.1/riot.min.js"></script>
     <script src="https://npmcdn.com/riotcontrol@0.0.3"></script>
     <script src="js/general.js"></script>
