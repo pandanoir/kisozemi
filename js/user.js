@@ -28,7 +28,7 @@ class User {
     }
     follow(groupID) {
         if (binarySearch(this.followList, groupID) === -1) {
-            request.post('follow.php')
+            request.post('user/follow')
                 .type('form')
                 .send({groupID: '' + groupID, 'screen_name': this.screenName})
                 .end(function(err, res) {console.log(res.text)});
@@ -38,7 +38,7 @@ class User {
     }
     unfollow(groupID) {
         this.followList = this.followList.filter(function(_) {return _ !== groupID});
-        request.post('unfollow.php')
+        request.post('user/unfollow')
             .type('form')
             .send({groupID: groupID, screen_name: this.screenName})
             .end(function(err, res) {console.log(res.text)});

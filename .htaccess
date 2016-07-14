@@ -17,10 +17,10 @@ RewriteRule ^get/event$ php/event.php
 RewriteRule ^get/group$ php/group.php
 
 
-#RewriteCond %{REQUEST_URI} /user/(follow|unfollow)
-#RewriteRule ^user/follow$ php/follow.php
-#RewriteRule ^user/unfollow$ php/unfollow.php
-#
+RewriteCond %{REQUEST_URI} /user/(follow|unfollow)
+RewriteRule ^user/follow$ php/follow.php
+RewriteRule ^user/unfollow$ php/unfollow.php
+
 RewriteCond %{REQUEST_URI} /search
 RewriteRule ^search$ php/search.php
 
