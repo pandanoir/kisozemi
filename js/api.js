@@ -1,7 +1,7 @@
 var API = {};
 API.getGroups = function(groupIDs) {
     return new Promise(function(resolve, reject) {
-        request.post('group.php')
+        request.post('get/group')
             .type('form')
             .send({groupIDs: groupIDs.join(',')})
             .end(function(err, res) {
@@ -15,7 +15,7 @@ API.getGroups = function(groupIDs) {
 };
 API.getEvents = function(groupIDs) {
     return new Promise(function(resolve, reject) {
-        request.post('event.php')
+        request.post('get/event')
             .type('form')
             .send({groupIDs: groupIDs.join(',')})
             .end(function(err, res) {
@@ -29,7 +29,7 @@ API.getEvents = function(groupIDs) {
 };
 API.search = function(keyword) {
     return new Promise(function(resolve, reject) {
-        request.post('search.php')
+        request.post('search')
             .type('form')
             .send({keyword: keyword})
             .end(function(err, res) {

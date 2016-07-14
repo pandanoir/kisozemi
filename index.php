@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/functions.php';
-require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/php/functions.php';
+require_once __DIR__ . '/php/database.php';
 require_logined_session();
 
 header('Content-Type: text/html; charset=UTF-8');

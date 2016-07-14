@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/functions.php';
-require_once __DIR__ . '/../../password.php';
+require_once __DIR__ . '/../../../password.php';
 require_unlogined_session();
 
 // POSTメソッドのときのみ実行

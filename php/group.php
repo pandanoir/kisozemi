@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../password.php';
+require_once __DIR__ . '/../../../password.php';
 
 ini_set("display_errors", On);
 error_reporting(E_ALL);
@@ -16,7 +16,7 @@ $db_selected = $mysqli->select_db('rabbitplot');
 if (!$db_selected){
     die('データベース選択失敗です。' . $mysqli->error);
 }
-$result = $mysqli->query("SELECT * FROM event WHERE groupID IN(${groupIDs})");
+$result = $mysqli->query("SELECT * FROM `group` WHERE groupID IN(${groupIDs})");
 if (!$result) {
     die('クエリーが失敗しました。' . $mysqli->error);
 }

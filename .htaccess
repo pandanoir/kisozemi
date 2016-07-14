@@ -1,0 +1,37 @@
+RewriteEngine on
+# php拡張子なしでもアクセス
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+
+RewriteRule ^(.*)$ $1.php
+
+RewriteCond %{REQUEST_FILENAME} check/(groupID|event|group)
+RewriteRule ^check/groupID$ php/checkGroupID.php
+RewriteRule ^create/event$ php/createEvent.php
+RewriteRule ^create/group$ php/createGroup.php
+
+
+
+RewriteCond %{REQUEST_URI} /get/(event|group)
+RewriteRule ^get/event$ php/event.php
+RewriteRule ^get/group$ php/group.php
+
+
+#RewriteCond %{REQUEST_URI} /user/(follow|unfollow)
+#RewriteRule ^user/follow$ php/follow.php
+#RewriteRule ^user/unfollow$ php/unfollow.php
+#
+RewriteCond %{REQUEST_URI} /search
+RewriteRule ^search$ php/search.php
+
+RewriteCond %{REQUEST_URI} /register
+RewriteRule ^register$ php/register.php
+
+RewriteCond %{REQUEST_URI} /login
+RewriteRule ^login$ php/login.php
+
+RewriteCond %{REQUEST_URI} /logout
+RewriteRule ^logout$ php/logout.php
+
+# 404ファイル
+ErrorDocument 404 /404.php

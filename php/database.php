@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../password.php';
+require_once __DIR__ . '/../../../password.php';
 function getUserInfoBy($screen_name) {
     $mysqli = new mysqli('localhost', MYSQL_USER, MYSQL_PASSWORD);
     if ($mysqli -> connect_errno) {
