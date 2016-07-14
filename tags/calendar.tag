@@ -35,22 +35,33 @@
     </style>
     <script>
     const calendarStore = new class CalendarStore {
+        get year() {return this._year;}
+        get month() {return this._month;}
+        get selected() {return this._selected;}
+        get calendar() {return this._calendar;}
+        get bookedList() {return this._bookedList;}
+        get events() {return this._events;}
         constructor() {
-            const self = this;
-            let eventList = filterByID(filterByID(eventsStore.getEventList(), userStore.getFollowList()), userStore.getHiddenGroup(), true);
-            
+            const getBookedList = (weeks) => {
+                const res = [];
+                res[0] = false;
+                for (let i = 0, _i = weeks.length; i < _i; i++) {
+                    for (let j = 0, _j = weeks[i].length; j < _j; j++) {
+                        if (weeks[i][j] !== '') res[weeks[i][j]] = this.getEvents(new Date(this.year, this.month, weeks[i][j])).length > 0;
+                    }
+                }
+                return res;
+            };
+
             riot.observable(this);
-            this.year = new Date().getFullYear();
-            this.month = new Date().getMonth();
-            this.selected = {date: new Date().getDate()};
-            this.calendar = new Calendar(this.year, this.month);
-            this.events = getEvents(new Date(this.year, this.month, this.selected.date));
-            this.bookedList = getBookedList(this.calendar.weeks);
+            this.__eventList__ = filterByID(filterByID(eventsStore.getEventList(), userStore.getFollowList()), userStore.getHiddenGroup(), true);
+            this._year = new Date().getFullYear();
+            this._month = new Date().getMonth();
+            this._selected = {date: new Date().getDate()};
+            this._calendar = new Calendar(this.year, this.month);
+            this._events = this.getEvents(new Date(this.year, this.month, this.selected.date));
+            this._bookedList = getBookedList(this.calendar.weeks);
             this.fields = ['year', 'month', 'selected', 'calendar', 'bookedList', 'events'];
-            this.fields.forEach(function(item) {
-                // self['getYear'] = function() {return self['year']};
-                self['get' + item.charAt(0).toUpperCase() + item.slice(1)] = function() {return self[item]};
-            });
             this.actionTypes = {
                 changed: 'calendar_store_changed'
             };
@@ -58,56 +69,47 @@
             this.on('nextMonth', this.nextMonth.bind(this));
             this.on('select', this.select.bind(this));
             this.on('follow unfollow show hide ' + eventsStore.actionTypes.changed, () => {
-                eventList = filterByID(filterByID(eventsStore.getEventList(), userStore.getFollowList()), userStore.getHiddenGroup(), true);
-                this.events = getEvents(new Date(this.year, this.month, this.selected.date));
-                this.bookedList = getBookedList(this.calendar.weeks);
+                this.__eventList__ = filterByID(filterByID(eventsStore.getEventList(), userStore.getFollowList()), userStore.getHiddenGroup(), true);
+                this._events = this.getEvents(new Date(this.year, this.month, this.selected.date));
+                this._bookedList = getBookedList(this.calendar.weeks);
                 RiotControl.trigger(this.actionTypes.changed);
             });
-            function getEvents(date) {
-                return filter(eventList, date);
-            }
-            function getBookedList(weeks) {
-                const res = [];
-                res[0] = false;
-                for (let i = 0, _i = weeks.length; i < _i; i++) {
-                    for (let j = 0, _j = weeks[i].length; j < _j; j++) {
-                        if (weeks[i][j] !== '') res[weeks[i][j]] = getEvents(new Date(self.year, self.month, weeks[i][j])).length > 0;
-                    }
-                }
-                return res;
-            }
         }
         previousMonth() {
-            this.month--;
+            this._month--;
             if (this.month < 0) {
-                this.year--;
-                this.month += 12;
+                this._year--;
+                this._month += 12;
             }
-            this.selected = {date: 1};
-            this.calendar = new Calendar(this.year, this.month);
-            this.events = getEvents(new Date(this.year, this.month, this.selected.date));
+            this._selected = {date: 1};
+            this._calendar = new Calendar(this.year, this.month);
+            this._events = this.getEvents(new Date(this.year, this.month, this.selected.date));
             RiotControl.trigger(this.actionTypes.changed);
         }
         nextMonth() {
-            this.month++;
+            this._month++;
             if (this.month > 11) {
-                this.year++;
-                this.month -= 12;
+                this._year++;
+                this._month -= 12;
             }
-            this.selected = {date: 1};
-            this.calendar = new Calendar(this.year, this.month);
-            this.events = getEvents(new Date(this.year, this.month, this.selected.date));
+            this._selected = {date: 1};
+            this._calendar = new Calendar(this.year, this.month);
+            this._events = this.getEvents(new Date(this.year, this.month, this.selected.date));
             RiotControl.trigger(this.actionTypes.changed);
         }
         select(date) {
             if (date !== ''){
-                this.selected.date = date;
-                this.events = getEvents(new Date(this.year, this.month, this.selected.date));
+                this._selected.date = date;
+                this._events = this.getEvents(new Date(this.year, this.month, this.selected.date));
                 RiotControl.trigger(this.actionTypes.changed);
             }
         }
+        getEvents(date) {
+            return filter(this.__eventList__, date);
+        }
     };
     RiotControl.addStore(calendarStore);
+
     const action = new class Action {
         constructor() {}
         previousMonth() {
@@ -121,24 +123,19 @@
         }
     };
     calendarStore.fields.forEach(item => {
-        // this['year'] = calendarStore['getYear']();
-        this[item] = calendarStore['get' + item.charAt(0).toUpperCase() + item.slice(1)]();
+        // this['year'] = calendarStore['year'];
+        this[item] = calendarStore[item];
     });
-    this.isBooked = calendarStore.getBookedList();
-    this.previousMonth = () => {
-        action.previousMonth();
-    };
-    this.nextMonth = () => {
-        action.nextMonth();
-    };
-    this.select = (e) => {
-        action.select(e.item.date);
-    };
+    this.isBooked = calendarStore.bookedList;
+    this.previousMonth = () => action.previousMonth();
+    this.nextMonth = () => action.nextMonth();
+    this.select = (e) => action.select(e.item.date);
+
     RiotControl.on(calendarStore.actionTypes.changed, () => {
         calendarStore.fields.forEach(item => {
-            this[item] = calendarStore['get' + item.charAt(0).toUpperCase() + item.slice(1)]();
+            this[item] = calendarStore[item];
         });
-        this.isBooked = calendarStore.getBookedList();
+        this.isBooked = calendarStore.bookedList;
         this.update();
     });
     </script>
