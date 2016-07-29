@@ -57,8 +57,8 @@
             this.on('previousMonth', this.previousMonth.bind(this));
             this.on('nextMonth', this.nextMonth.bind(this));
             this.on('select', this.select.bind(this));
-            this.on('follow unfollow show hide ' + eventsStore.actionTypes.changed, () => {
-                this.__eventList__ = filterByID(filterByID(eventsStore.getEventList(), userStore.getFollowList()), userStore.getHiddenGroup(), true);
+            this.on('follow unfollow hide show hide-all show-all ' + eventsStore.actionTypes.changed, () => {
+                this.__eventList__ = filterByID(filterByID(eventsStore.eventList, userStore.followList), userStore.hiddenGroup, true);
                 this._events = this.getEvents(new Date(this.year, this.month, this.selected.date));
                 this._bookedList = this.getBookedList(this.calendar.weeks);
                 RiotControl.trigger(this.actionTypes.changed);

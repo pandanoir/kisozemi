@@ -8,16 +8,18 @@
             <button onclick={hiddenGroup.indexOf(id) === -1 ? hide : show}>{hiddenGroup.indexOf(id) === -1 ? '非' : ''}表示にする</button>
         </li>
     </ul>
+    <button onclick={hideAll}>すべて非表示にする</button>
+    <button onclick={showAll}>すべて表示する</button>
     <style scoped>
     </style>
     <script>
-    RiotControl.on('follow unfollow hide show ' + groupsStore.actionTypes.changed, () => {
     this.generate_token = opts.generateToken;
     this.name = userStore.name;
     this.screenName = userStore.screenName;
     this.followList = userStore.followList;
     this.hiddenGroup = userStore.hiddenGroup;
     this.groups = groupsStore.groupList;
+    RiotControl.on('follow unfollow hide show hide-all show-all' + groupsStore.actionTypes.changed, () => {
         this.followList = userStore.followList;
         this.hiddenGroup = userStore.hiddenGroup;
         this.update();
@@ -41,6 +43,12 @@
         show(id) {
             RiotControl.trigger('show', id);
         }
+        hideAll() {
+            RiotControl.trigger('hide-all');
+        }
+        showAll() {
+            RiotControl.trigger('show-all');
+        }
     };
     this.unfollow = (e) => {
         action.unfollow(e.item.id);
@@ -50,5 +58,11 @@
     };
     this.show = (e) => {
         action.show(e.item.id);
+    };
+    this.hideAll = (e) => {
+        action.hideAll();
+    };
+    this.showAll = (e) => {
+        action.showAll();
     };
 </my-user-info>

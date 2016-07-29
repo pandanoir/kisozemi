@@ -16,6 +16,8 @@ class User {
         this.on('unfollow', this.unfollow.bind(this));
         this.on('show', this.show.bind(this));
         this.on('hide', this.hide.bind(this));
+        this.on('show-all', this.showAll.bind(this));
+        this.on('hide-all', this.hideAll.bind(this));
     }
     follow(groupID) {
         if (binarySearch(this.followList, groupID) === -1) {
@@ -42,5 +44,11 @@ class User {
     }
     show(groupID) {
         this._hiddenGroup = this.hiddenGroup.filter(_ => _ !== groupID);
+    }
+    hideAll() {
+        this._hiddenGroup = this.followList.concat();
+    }
+    showAll() {
+        this._hiddenGroup = [];
     }
 }
