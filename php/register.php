@@ -44,8 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // セッションIDの追跡を防ぐ
         session_regenerate_id(true);
         // ユーザ名をセット
-        if ($stmt = $mysqli->prepare("INSERT INTO user VALUES(?,?,?,?)")) {
-            $stmt->bind_param('isss', $userID} $screen_name, $name, $password);
+        if ($stmt = $mysqli->prepare('INSERT INTO user VALUES(?,?,?,?)')) {
+            $stmt->bind_param('isss', $userID, $screen_name, $name, $password);
             $stmt->execute();
             $stmt->close();
             $_SESSION['screen_name'] = $screen_name;
