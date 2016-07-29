@@ -5,7 +5,8 @@
         <li each={id in result}>{groups[id].name}(@{groups[id].screenName})<button onclick={follow} if={id >= 10}>フォロー</button></li>
     </ul>
     <span if={searching == true}>検索中...</span>
-    <a href="./createGroup.html" target="_blank">グループを作成する</a>
+    <h2>グループを作成する</h2>
+    <my-group-form></my-group-form>
     <style scoped>
     </style>
     <script>

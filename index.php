@@ -41,6 +41,7 @@ header('Content-Type: text/html; charset=UTF-8');
     <script src="js/api.js"></script>
     <script src="tags/calendar.js"></script>
     <script src="tags/search.js"></script>
+    <script src="tags/groupForm.js"></script>
     <script src="tags/userinfo.js"></script>
     <script>
         var userStore = new User(<?= getUserClassArguments($_SESSION['screen_name']); ?>);
