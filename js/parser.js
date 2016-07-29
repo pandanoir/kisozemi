@@ -10,8 +10,8 @@
 // var Parsimmon = require('parsimmon');
 // var shuntingYard = require('./shuntingyard.js');
 
-var join = function(_) {return _.join('')};
-var flatten = function(a, b) {return a.concat(b)};
+var join = _ => _.join('');
+var flatten = (a, b) => a.concat(b);
 
 var lazy = Parsimmon.lazy;
 var seq = Parsimmon.seq;
@@ -38,17 +38,15 @@ var primaryExpression = lazy(function() {
             seq(s('date').skip(s(':')).skip(ws), alt(date, s('vernal-equinox-day'), s('autumnal-equinox-day'), s('full-moon-night'))),
             seq(s('day').skip(s(':')).skip(ws), regex(DAY_REGEXP)),
             seq(s('range').skip(s(':')).skip(ws), seq(fullDate.times(0, 1), s('.').times(2, 3).result('...'), fullDate.times(0, 1)).map(join)),
-            seq(s('not').skip(s(':')).skip(ws), selector.map(function(_) {return _[0].value}))
-        ).map(function(x) {
-            return [{
-                value: x,
-                type: 'primary'
-            }];
-        });
+            seq(s('not').skip(s(':')).skip(ws), selector.map(_ => _[0].value))
+        ).map(x => [{
+            value: x,
+            type: 'primary'
+        }]);
     });
     return alt(
         selector,
-        seq(s('(').skip(ws).result({value: '(', type: 'left-parenthesis'}), expression, s(')').result({value: ')', type: 'right-parenthesis'})).map(function(x) {return x.reduce(flatten, [])})
+        seq(s('(').skip(ws).result({value: '(', type: 'left-parenthesis'}), expression, s(')').result({value: ')', type: 'right-parenthesis'})).map(x => x.reduce(flatten, []))
     );
 });
 var expression = lazy(function() {
@@ -72,8 +70,9 @@ var expression = lazy(function() {
 function parseExpression(expr) {
     var res = expression.parse(expr);
     if (res.status) {
-        return shuntingYard(res.value);
+        return shuntingYard(res.value).map(_ => _.value);
     }
+    return null;
 }
 function evaluateExpression(transformed, date) {
     var stack = [];
@@ -167,12 +166,12 @@ function evaluateSelector(primary, date) {
         var value = value.split('...');
         var res = true;
         if (value[0] !== '') {
-            var start = value[0].split('/').map(function(_) {return parseInt(_, 10)});
+            var start = value[0].split('/').map(_ => parseInt(_, 10));
             start = new Date(start[0], start[1] - 1, start[2]);
             res = res && date - start >= 0;
         }
         if (value[1] !== '') {
-            var end = value[1].split('/').map(function(_) {return parseInt(_, 10)});
+            var end = value[1].split('/').map(_ => parseInt(_, 10));
             end = new Date(end[0], end[1] - 1, end[2]);
             res = res && end - date >= 0;
         }

@@ -1,16 +1,15 @@
 class Groups {
     constructor() {
-        const self = this;
         riot.observable(this);
         this.groupList = [];
         this.actionTypes = {
             changed: 'groups_store_changed'
         };
-        API.getGroups(userStore.followList).then(function(value) {
+        API.getGroups(userStore.followList).then(value => {
             for (let i = 0, _i = value.length; i < _i; i++) {
-                self.groupList[value[i].groupID] = value[i];
+                this._groupList[value[i].groupID] = value[i];
             }
-            RiotControl.trigger(self.actionTypes.changed);
+            RiotControl.trigger(this.actionTypes.changed);
         });
         this.on('follow', this.fetchGroup.bind(this));
     }
@@ -19,15 +18,15 @@ class Groups {
     }
     fetchGroups(groupIDs) {
         const self = this;
-        const missing = groupIDs.filter(function(id) {
-            return !self.groupList[id];
+        const missing = groupIDs.filter(id => {
+            return !this.groupList[id];
         });
         if (missing.length > 0) {
-            return API.getGroups(missing).then(function(value) {
+            return API.getGroups(missing).then(value => {
                 for (let i = 0, _i = value.length; i < _i; i++) {
-                    self.groupList[value[i].groupID] = value[i];
+                    this._groupList[value[i].groupID] = value[i];
                 }
-                RiotControl.trigger(self.actionTypes.changed);
+                RiotControl.trigger(this.actionTypes.changed);
             });
         } else {
             return Promise.resolve();

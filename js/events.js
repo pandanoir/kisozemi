@@ -1,7 +1,6 @@
 var events = [];
 class Events {
     constructor() {
-        const self = this;
         riot.observable(this);
         this.eventList = [];
         this.fetchedGroupList = userStore.getFollowList().concat();
