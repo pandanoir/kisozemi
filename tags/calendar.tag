@@ -42,25 +42,14 @@
         get bookedList() {return this._bookedList;}
         get events() {return this._events;}
         constructor() {
-            const getBookedList = (weeks) => {
-                const res = [];
-                res[0] = false;
-                for (let i = 0, _i = weeks.length; i < _i; i++) {
-                    for (let j = 0, _j = weeks[i].length; j < _j; j++) {
-                        if (weeks[i][j] !== '') res[weeks[i][j]] = this.getEvents(new Date(this.year, this.month, weeks[i][j])).length > 0;
-                    }
-                }
-                return res;
-            };
-
             riot.observable(this);
-            this.__eventList__ = filterByID(filterByID(eventsStore.getEventList(), userStore.getFollowList()), userStore.getHiddenGroup(), true);
+            this.__eventList__ = filterByID(filterByID(eventsStore.eventList, userStore.followList), userStore.hiddenGroup, true);
             this._year = new Date().getFullYear();
             this._month = new Date().getMonth();
             this._selected = {date: new Date().getDate()};
             this._calendar = new Calendar(this.year, this.month);
             this._events = this.getEvents(new Date(this.year, this.month, this.selected.date));
-            this._bookedList = getBookedList(this.calendar.weeks);
+            this._bookedList = this.getBookedList(this.calendar.weeks);
             this.fields = ['year', 'month', 'selected', 'calendar', 'bookedList', 'events'];
             this.actionTypes = {
                 changed: 'calendar_store_changed'
@@ -71,41 +60,54 @@
             this.on('follow unfollow show hide ' + eventsStore.actionTypes.changed, () => {
                 this.__eventList__ = filterByID(filterByID(eventsStore.getEventList(), userStore.getFollowList()), userStore.getHiddenGroup(), true);
                 this._events = this.getEvents(new Date(this.year, this.month, this.selected.date));
-                this._bookedList = getBookedList(this.calendar.weeks);
+                this._bookedList = this.getBookedList(this.calendar.weeks);
                 RiotControl.trigger(this.actionTypes.changed);
             });
         }
         previousMonth() {
-            this._month--;
+            this.proceedMonth(-1);
+        }
+        nextMonth() {
+            this.proceedMonth(1);
+        }
+        proceedMonth(dx) {
+            this._month += dx;
             if (this.month < 0) {
                 this._year--;
                 this._month += 12;
             }
-            this._selected = {date: 1};
-            this._calendar = new Calendar(this.year, this.month);
-            this._events = this.getEvents(new Date(this.year, this.month, this.selected.date));
-            RiotControl.trigger(this.actionTypes.changed);
-        }
-        nextMonth() {
-            this._month++;
             if (this.month > 11) {
                 this._year++;
                 this._month -= 12;
             }
             this._selected = {date: 1};
             this._calendar = new Calendar(this.year, this.month);
+            this.__eventList__ = filterByID(filterByID(eventsStore.eventList, userStore.followList), userStore.hiddenGroup, true);
             this._events = this.getEvents(new Date(this.year, this.month, this.selected.date));
+            this._bookedList = this.getBookedList(this.calendar.weeks);
             RiotControl.trigger(this.actionTypes.changed);
         }
         select(date) {
             if (date !== ''){
                 this._selected.date = date;
+                this.__eventList__ = filterByID(filterByID(eventsStore.eventList, userStore.followList), userStore.hiddenGroup, true);
                 this._events = this.getEvents(new Date(this.year, this.month, this.selected.date));
+                this._bookedList = this.getBookedList(this.calendar.weeks);
                 RiotControl.trigger(this.actionTypes.changed);
             }
         }
         getEvents(date) {
             return filter(this.__eventList__, date);
+        }
+        getBookedList(weeks) {
+            const res = [];
+            res[0] = false;
+            for (let i = 0, _i = weeks.length; i < _i; i++) {
+                for (let j = 0, _j = weeks[i].length; j < _j; j++) {
+                    if (weeks[i][j] !== '') res[weeks[i][j]] = this.getEvents(new Date(this.year, this.month, weeks[i][j])).length > 0;
+                }
+            }
+            return res;
         }
     };
     RiotControl.addStore(calendarStore);

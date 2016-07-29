@@ -1,30 +1,21 @@
 class User {
+    get name() {return this._name}
+    get screenName() {return this._screenName}
+    get followList() {return this._followList}
+    get hiddenGroup() {return this._hiddenGroup}
     constructor(screenName, name, followList) {
         riot.observable(this);
-        this.followList = [0, 1];
+        this._followList = [0, 1];
         if (followList && typeof followList.length === 'number') {
-            this.followList = this.followList.concat(followList);
+            this._followList = this._followList.concat(followList);
         }
-        this.hiddenGroup = [];
-        this.id = 10000; // temp
-        this.screenName = screenName;
-        this.name = name;
+        this._hiddenGroup = [];
+        this._screenName = screenName;
+        this._name = name;
         this.on('follow', this.follow.bind(this));
         this.on('unfollow', this.unfollow.bind(this));
         this.on('show', this.show.bind(this));
         this.on('hide', this.hide.bind(this));
-    }
-    getName() {
-        return this.name;
-    }
-    getScreenName() {
-        return this.screenName;
-    }
-    getFollowList() {
-        return this.followList;
-    }
-    getHiddenGroup() {
-        return this.hiddenGroup;
     }
     follow(groupID) {
         if (binarySearch(this.followList, groupID) === -1) {
@@ -32,12 +23,12 @@ class User {
                 .type('form')
                 .send({groupID: '' + groupID, 'screen_name': this.screenName})
                 .end(function(err, res) {console.log(res.text)});
-            this.followList.push(groupID);
-            this.followList.sort(function(a, b) {return a - b});
+            this._followList.push(groupID);
+            this._followList.sort((a, b) => a - b);
         }
     }
     unfollow(groupID) {
-        this.followList = this.followList.filter(function(_) {return _ !== groupID});
+        this._followList = this.followList.filter(_ => _ !== groupID);
         request.post('user/unfollow')
             .type('form')
             .send({groupID: groupID, screen_name: this.screenName})
@@ -45,11 +36,11 @@ class User {
     }
     hide(groupID) {
         if (binarySearch(this.hiddenGroup, groupID) === -1) {
-            this.hiddenGroup.push(groupID);
-            this.hiddenGroup.sort(function(a, b) {return a - b});
+            this._hiddenGroup.push(groupID);
+            this._hiddenGroup.sort((a, b) => a - b);
         }
     }
     show(groupID) {
-        this.hiddenGroup = this.hiddenGroup.filter(function(_) {return _ !== groupID});
+        this._hiddenGroup = this.hiddenGroup.filter(_ => _ !== groupID);
     }
 }

@@ -1,7 +1,8 @@
 class Groups {
+    get groupList() {return this._groupList;}
     constructor() {
         riot.observable(this);
-        this.groupList = [];
+        this._groupList = [];
         this.actionTypes = {
             changed: 'groups_store_changed'
         };
@@ -31,8 +32,5 @@ class Groups {
         } else {
             return Promise.resolve();
         }
-    }
-    getGroupList() {
-        return this.groupList;
     }
 }

@@ -1,9 +1,10 @@
 var events = [];
 class Events {
+    get eventList() {return this._eventList}
     constructor() {
         riot.observable(this);
-        this.eventList = [];
-        this.fetchedGroupList = userStore.getFollowList().concat();
+        this._eventList = [];
+        this.fetchedGroupList = userStore.followList.concat();
         this.actionTypes = {
             changed: 'events_store_changed'
         };
@@ -25,9 +26,6 @@ class Events {
             });
         }
         return Promise.resolve();
-    }
-    getEventList() {
-        return this.eventList;
     }
 }
 

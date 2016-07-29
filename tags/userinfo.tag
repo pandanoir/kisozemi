@@ -11,22 +11,22 @@
     <style scoped>
     </style>
     <script>
-    this.name = userStore.getName();
-    this.screenName = userStore.getScreenName();
-    this.followList = userStore.getFollowList();
-    this.hiddenGroup = userStore.getHiddenGroup();
-    this.groups = groupsStore.getGroupList();
     RiotControl.on('follow unfollow hide show ' + groupsStore.actionTypes.changed, () => {
-        this.followList = userStore.getFollowList();
-        this.hiddenGroup = userStore.getHiddenGroup();
+    this.name = userStore.name;
+    this.screenName = userStore.screenName;
+    this.followList = userStore.followList;
+    this.hiddenGroup = userStore.hiddenGroup;
+    this.groups = groupsStore.groupList;
+        this.followList = userStore.followList;
+        this.hiddenGroup = userStore.hiddenGroup;
         this.update();
     });
     RiotControl.on(groupsStore.actionTypes.changed, () => {
-        this.name = userStore.getName();
-        this.screenName = userStore.getScreenName();
-        this.followList = userStore.getFollowList();
-        this.hiddenGroup = userStore.getHiddenGroup();
-        this.groups = groupsStore.getGroupList();
+        this.name = userStore.name;
+        this.screenName = userStore.screenName;
+        this.followList = userStore.followList;
+        this.hiddenGroup = userStore.hiddenGroup;
+        this.groups = groupsStore.groupList;
         this.update();
     });
     const action = new class Action {

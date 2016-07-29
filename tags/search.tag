@@ -9,42 +9,42 @@
     <style scoped>
     </style>
     <script>
-    const searchStore = new function() {
-        riot.observable(this);
-        this.searching = false;
-        this.result = [];
-        this.fields = ['searching', 'result'];
-        this.actionTypes = {
-            changed: 'search_store_changed'
-        };
-        this.fields.forEach(item => {
-            // this['getYear'] = function() {return this['year']};
-            this['get' + item.charAt(0).toUpperCase() + item.slice(1)] = function() {return this[item]};
-        });
-        this.on('search', keyword => {
-            if (keyword !== '') {
-                this.searching = true;
-                this.result = [];
-                RiotControl.trigger(this.actionTypes.changed);
-                API.search(keyword).then(groupIDs => {
-                    this.result = groupIDs;
-                    groupsStore.fetchGroups(this.result).then(() => {
-                        this.searching = false;
-                        RiotControl.trigger(this.actionTypes.changed);
+    const searchStore = new class SearchStore {
+        get searching() {return this._searching;}
+        get result() {return this._result;}
+        constructor() {
+            riot.observable(this);
+            this._searching = false;
+            this._result = [];
+            this.fields = ['searching', 'result'];
+            this.actionTypes = {
+                changed: 'search_store_changed'
+            };
+            this.on('search', keyword => {
+                if (keyword !== '') {
+                    this._searching = true;
+                    this._result = [];
+                    RiotControl.trigger(this.actionTypes.changed);
+                    API.search(keyword).then(groupIDs => {
+                        this._result = groupIDs;
+                        groupsStore.fetchGroups(this.result).then(() => {
+                            this._searching = false;
+                            RiotControl.trigger(this.actionTypes.changed);
+                        });
                     });
-                });
-            } else {
-                this.searching = false;
-                this.result = [];
-                RiotControl.trigger(this.actionTypes.changed);
-            }
-        })
+                } else {
+                    this._searching = false;
+                    this._result = [];
+                    RiotControl.trigger(this.actionTypes.changed);
+                }
+            });
+        }
     };
     RiotControl.addStore(searchStore);
-    this.groups = groupsStore.getGroupList();
+    this.groups = groupsStore.groupList;
     searchStore.fields.forEach(item => {
-        // this['year'] = searchStore['getYear']();
-        this[item] = searchStore['get' + item.charAt(0).toUpperCase() + item.slice(1)]();
+        // this['year'] = searchStore['year']();
+        this[item] = searchStore[item];
     });
 
     const action = new class Action {
@@ -58,13 +58,13 @@
     };
     RiotControl.on(searchStore.actionTypes.changed, () => {
         searchStore.fields.forEach(item => {
-            // this['year'] = searchStore['getYear']();
-            this[item] = searchStore['get' + item.charAt(0).toUpperCase() + item.slice(1)]();
+            // this['year'] = searchStore['year']();
+            this[item] = searchStore[item];
         });
         this.update();
     });
     RiotControl.on(groupsStore.actionTypes.changed, () => {
-        this.groups = groupsStore.getGroupList();
+        this.groups = groupsStore.groupList;
         this.update();
     });
 
