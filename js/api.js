@@ -13,11 +13,11 @@ API.getGroups = function(groupIDs) {
             });
     });
 };
-API.getEvents = function(groupIDs) {
     return new Promise(function(resolve, reject) {
+API.getEvents = function(groupIDs, user_screen_name) {
         request.post('get/event')
             .type('form')
-            .send({groupIDs: groupIDs.join(',')})
+            .send({groupIDs: groupIDs.join(','), user_screen_name: user_screen_name})
             .end(function(err, res) {
                 res = JSON.parse(res.text).map(function(_) {
                     _.transformed = JSON.parse(_.transformed);

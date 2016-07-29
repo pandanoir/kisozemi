@@ -9,9 +9,9 @@ class Events {
             changed: 'events_store_changed'
         };
 
-        API.getEvents(userStore.followList).then(function(value) {
-            self.eventList.push.apply(self.eventList, value);
-            RiotControl.trigger(self.actionTypes.changed);
+        API.getEvents(userStore.followList, userStore.screenName).then(value => {
+            this._eventList.push(...value);
+            RiotControl.trigger(this.actionTypes.changed);
         });
         this.on('follow', this.fetchEventList.bind(this));
     }
@@ -20,9 +20,9 @@ class Events {
         if (binarySearch(this.fetchedGroupList, groupID) === -1) {
             this.fetchedGroupList.push(groupID);
             this.fetchedGroupList.sort(function(a, b) {return a - b});
-            return API.getEvents([groupID]).then(function(value) {
-                self.eventList.push.apply(self.eventList, value);
-                RiotControl.trigger(self.actionTypes.changed);
+            return API.getEvents([groupID], userStore.screenName).then(value => {
+                this._eventList.push(...value);
+                RiotControl.trigger(this.actionTypes.changed);
             });
         }
         return Promise.resolve();
