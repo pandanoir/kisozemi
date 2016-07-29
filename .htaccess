@@ -5,10 +5,14 @@ RewriteCond %{REQUEST_FILENAME}\.php -f
 
 RewriteRule ^(.*)$ $1.php
 
-RewriteCond %{REQUEST_FILENAME} check/(groupID|event|group)
+RewriteCond %{REQUEST_URI} check/groupID
 RewriteRule ^check/groupID$ php/checkGroupID.php
+
+RewriteCond %{REQUEST_URI} create/(event|group|_event_|_group_)
 RewriteRule ^create/event$ php/createEvent.php
-RewriteRule ^create/group$ php/createGroup.php
+RewriteRule ^create/group$ createGroup.html
+RewriteRule ^create/_event_$ php/_createEvent_.php
+RewriteRule ^create/_group_$ php/_createGroup_.php
 
 
 
