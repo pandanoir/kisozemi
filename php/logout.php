@@ -15,4 +15,4 @@ setcookie(session_name(), '', 1);
 // セッションファイルの破棄
 session_destroy();
 // ログアウト完了後に /login.php に遷移
-header('Location: ./login.php');
+header('Location: ./login');

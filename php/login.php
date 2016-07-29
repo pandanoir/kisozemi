@@ -58,9 +58,11 @@ header('Content-Type: text/html; charset=UTF-8');
 
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="ja">
     <head>
+        <meta charset="UTF-8">
         <title>ログインページ</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     </head>
     <body>
         <h1>ログインしてください</h1>
@@ -70,7 +72,7 @@ header('Content-Type: text/html; charset=UTF-8');
             <input type="hidden" name="token" value="<?=h(generate_token())?>">
             <input type="submit" value="ログイン">
         </form>
-        <a href="./register.php">新規ユーザ登録をする</a>
+        <a href="./register">新規ユーザ登録をする</a>
         <form method="post" action="">
             <input type="hidden" name="screen_name" value="test_user"><br>
             <input type="hidden" name="password" value="password"><br>

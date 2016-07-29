@@ -15,7 +15,7 @@
         <li each = {event in events}>{event.title}</li>
         <li if = {events.length === 0}>予定なし</li>
     </ul>
-    <a href="./createEvent.php">イベントを作成する</a>
+    <a href="./create/event">イベントを作成する</a>
     <style scoped>
         .header { text-align: center; }
         table { text-align: center; }

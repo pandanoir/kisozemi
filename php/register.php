@@ -75,7 +75,7 @@ header('Content-Type: text/html; charset=UTF-8');
             <input type="hidden" name="token" value="<?=h(generate_token())?>">
             <input type="submit" value="登録">
         </form>
-        <a href="./register.php">新規ユーザ登録をする</a>
+        <a href="./register">新規ユーザ登録をする</a>
         <?php if (http_response_code() === 403): ?>
         <p style="color: red;">ユーザ名またはパスワードが違います</p>
         <?php endif; ?>
