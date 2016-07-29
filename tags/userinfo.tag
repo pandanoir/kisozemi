@@ -1,5 +1,5 @@
 <my-user-info>
-    {name}(@{screenName})<a href="./logout.php?token=<?=h(generate_token())?>">ログアウト</a><br>
+    {name}(@{screenName})<a href="./logout?token={generate_token}">ログアウト</a><br>
     フォローしているグループ
     <ul>
         <li each={id in followList}>
@@ -12,6 +12,7 @@
     </style>
     <script>
     RiotControl.on('follow unfollow hide show ' + groupsStore.actionTypes.changed, () => {
+    this.generate_token = opts.generateToken;
     this.name = userStore.name;
     this.screenName = userStore.screenName;
     this.followList = userStore.followList;

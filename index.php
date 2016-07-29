@@ -26,7 +26,7 @@ header('Content-Type: text/html; charset=UTF-8');
   <body>
     <my-calendar></my-calendar>
     <my-search></my-search>
-    <my-user-info></my-user-info>
+    <my-user-info generate-token="<?=h(generate_token())?>"></my-user-info>
     <script src="node_modules/parsimmon/build/parsimmon.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/superagent/2.0.0/superagent.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/2.4.1/riot.min.js"></script>
