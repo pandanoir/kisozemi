@@ -1,4 +1,4 @@
-// all selectors:
+// all properties:
 //   year
 //   month
 //   date
@@ -94,7 +94,7 @@ function evaluateExpression(transformed, date) {
     return res.isEvaluated ? res.value : evaluateSelector(res.value, date);
 }
 function evaluateSelector(primary, date) {
-    var selector = primary[0];
+    var property = primary[0];
     var value = primary[1];
     var dayDic = {
         sun: 0, sunday: 0,
@@ -105,16 +105,16 @@ function evaluateSelector(primary, date) {
         fri: 5, friday: 5,
         sat: 6, saturday: 6
     };
-    if (selector === 'year') {
+    if (property === 'year') {
         if (value === 'leap-year') {
             var year = date.getFullYear();
             return year % 400 === 0 || year % 100 !== 0 && year % 4 === 0;
         } else {
             return '' + date.getFullYear() === value;
         }
-    } else if (selector === 'month') {
+    } else if (property === 'month') {
         return '' + (date.getMonth() + 1) === value;
-    } else if (selector === 'date') {
+    } else if (property === 'date') {
         var year = date.getFullYear();
         if (value === 'vernal-equinox-day') {
             if (year < 1949 || date.getMonth() + 1 !== 3) return false; // 1949年以前は祝日ではなかった
@@ -155,14 +155,14 @@ function evaluateSelector(primary, date) {
             }
         }
         return '' + date.getDate() === value;
-    } else if (selector === 'day') {
+    } else if (property === 'day') {
         var res = value.match(DAY_REGEXP);
         var ordinal = res[1];
         var day = res[2];
         return dayDic[day.toLowerCase()] === date.getDay() &&
             (typeof ordinal === 'undefined' ||
                 (0 | (date.getDate() - 1) / 7) === parseInt(ordinal, 10) - 1);
-    } else if (selector === 'range') {
+    } else if (property === 'range') {
         var value = value.split('...');
         var res = true;
         if (value[0] !== '') {
@@ -176,7 +176,7 @@ function evaluateSelector(primary, date) {
             res = res && end - date >= 0;
         }
         return res;
-    } else if (selector === 'not') {
+    } else if (property === 'not') {
         return !evaluateSelector(value, date);
     }
     return false;

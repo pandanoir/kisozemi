@@ -23,10 +23,10 @@
   <body>
     <h1>declare</h1>
     <p>
-        expression:= selector: value
+        expression:= property: value
     </p>
     <p>
-        selector: year | month | date | day | not | yesterday | range
+        property: year | month | date | day | not | yesterday | range
     </p>
     <p>
         value: Number | String | Range | Others
@@ -37,35 +37,35 @@
     <p>
         OrExpression:= <i>AndExpression</i> ((|| | or) <i>AndExpression)?</i>
     </p>
-    <h2>year selector</h2>
+    <h2>year property</h2>
     <p>
-        The value of this selector is <i>Number</i> or <i>leap-year</i>. If the value is <i>Number</i>, this selector matches the year the value implies. If the value is leap-year, this selector matches leap year.
+        The value of this property is <i>Number</i> or <i>leap-year</i>. If the value is <i>Number</i>, this property matches the year the value implies. If the value is leap-year, this property matches leap year.
     </p>
     <h3>Example</h3>
     <code>
         year: 2000<br>
         year: leap-year
     </code>
-    <h2>month selector</h2>
+    <h2>month property</h2>
     <p>
-        The value of this selector is <i>Number</i> expressing the month that you want to match. The value cannot be less than 1 or greater than 12. Error will occur.
+        The value of this property is <i>Number</i> expressing the month that you want to match. The value cannot be less than 1 or greater than 12. Error will occur.
     </p>
     <h3>Example</h3>
     <code>
         month: 1
     </code>
-    <h2>date selector</h2>
+    <h2>date property</h2>
     <p>
-        The value of this selector is <i>Number</i>, <i>vernal-equinox-day</i>, <i>autumnal-equinox-day</i> or <i>full-moon-night</i>. When the value is <i>Number</i>, that cannot be less than 1 or greater than 31.
+        The value of this property is <i>Number</i>, <i>vernal-equinox-day</i>, <i>autumnal-equinox-day</i> or <i>full-moon-night</i>. When the value is <i>Number</i>, that cannot be less than 1 or greater than 31.
     </p>
     <h3>Example</h3>
     <code>
         date: 31<br>
         date: vernal-equinox-day
     </code>
-    <h2>day selector</h2>
+    <h2>day property</h2>
     <p>
-        The value of this selector is <i>sunday</i>, <i>monday</i>, <i>tuesday</i> or String of other days. You can use abbreviations such as <i>sun</i>, <i>mon</i> or <i>tue</i>.
+        The value of this property is <i>sunday</i>, <i>monday</i>, <i>tuesday</i> or String of other days. You can use abbreviations such as <i>sun</i>, <i>mon</i> or <i>tue</i>.
 
         You can use ordinal number. Putting ordinal number such as 1st and one space or one hyphen.
     </p>
@@ -75,17 +75,17 @@
         day: 1st-wed<br>
         day: 2nd friday
     </code>
-    <h2>not selector</h2>
+    <h2>not property</h2>
     <p>
-        The value of this selector is <i>expression</i>. The value can accepts any selector even if the value is not selector expression.
+        The value of this property is <i>expression</i>. The value can accepts any property even if the value is not property expression.
     </p>
     <h3>Example</h3>
     <code>
         not: month: 1
     </code>
-    <h2>range selector</h2>
+    <h2>range property</h2>
     <p>
-        The format of the value of this selector is year/month/date...year/month/date. mnonth accepts only 1 through 12. date accepts only 1 through 31. the splitter <i>"..."</i> can be <i>".."</i>. You can omit start date or end date.
+        The format of the value of this property is year/month/date...year/month/date. mnonth accepts only 1 through 12. date accepts only 1 through 31. the splitter <i>"..."</i> can be <i>".."</i>. You can omit start date or end date.
     </p>
     <h3>Example</h3>
     <code>
