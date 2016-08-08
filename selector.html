@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <title></title>
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <style>
+    h2 + p {
+        margin-left: 30px;
+    }
+    h3, h3 + code {
+        margin-left: 30px;
+    }
+    code {
+        display: block;
+        background: rgb(220, 220, 240);
+        padding: 2px;
+        border: 1px solid rgb(200, 200, 240);
+        width: 500px;
+    }
+    </style>
   </head>
   <body>
     <h1>declare</h1>
@@ -11,7 +26,7 @@
         expression:= selector: value
     </p>
     <p>
-        selector: year | month | date | day | not | is | yesterday | range
+        selector: year | month | date | day | not | yesterday | range
     </p>
     <p>
         value: Number | String | Range | Others
@@ -22,14 +37,69 @@
     <p>
         OrExpression:= <i>AndExpression</i> ((|| | or) <i>AndExpression)?</i>
     </p>
-    <h1>example</h1>
-    <ul>
-        <li>date: 13 day: 3rd-wednesday</li>
-        <li>date: 13</li>
-        <li>day: wednesday</li>
-        <li>month: 5 date: 5</li>
-        <li>year: leap-year month: 2 date: 29</li>
-        <li>year: leap-year month: 5</li>
-    </ul>
+    <h2>year selector</h2>
+    <p>
+        The value of this selector is <i>Number</i> or <i>leap-year</i>. If the value is <i>Number</i>, this selector matches the year the value implies. If the value is leap-year, this selector matches leap year.
+    </p>
+    <h3>Example</h3>
+    <code>
+        year: 2000<br>
+        year: leap-year
+    </code>
+    <h2>month selector</h2>
+    <p>
+        The value of this selector is <i>Number</i> expressing the month that you want to match. The value cannot be less than 1 or greater than 12. Error will occur.
+    </p>
+    <h3>Example</h3>
+    <code>
+        month: 1
+    </code>
+    <h2>date selector</h2>
+    <p>
+        The value of this selector is <i>Number</i>, <i>vernal-equinox-day</i>, <i>autumnal-equinox-day</i> or <i>full-moon-night</i>. When the value is <i>Number</i>, that cannot be less than 1 or greater than 31.
+    </p>
+    <h3>Example</h3>
+    <code>
+        date: 31<br>
+        date: vernal-equinox-day
+    </code>
+    <h2>day selector</h2>
+    <p>
+        The value of this selector is <i>sunday</i>, <i>monday</i>, <i>tuesday</i> or String of other days. You can use abbreviations such as <i>sun</i>, <i>mon</i> or <i>tue</i>.
+
+        You can use ordinal number. Putting ordinal number such as 1st and one space or one hyphen.
+    </p>
+    <h3>Example</h3>
+    <code>
+        day: sunday<br>
+        day: 1st-wed<br>
+        day: 2nd friday
+    </code>
+    <h2>not selector</h2>
+    <p>
+        The value of this selector is <i>expression</i>. The value can accepts any selector even if the value is not selector expression.
+    </p>
+    <h3>Example</h3>
+    <code>
+        not: month: 1
+    </code>
+    <h2>range selector</h2>
+    <p>
+        The format of the value of this selector is year/month/date...year/month/date. mnonth accepts only 1 through 12. date accepts only 1 through 31. the splitter <i>"..."</i> can be <i>".."</i>. You can omit start date or end date.
+    </p>
+    <h3>Example</h3>
+    <code>
+        range: 1901/1/1...2000/12/31
+        range: ...2000/12/31<br>
+    </code>
+    <h1>Expression Example</h1>
+    <code>
+        date: 13 day: 3rd-wednesday<br>
+        date: 13<br>
+        day: wednesday<br>
+        month: 5 date: 5<br>
+        year: leap-year month: 2 date: 29<br>
+        year: leap-year month: 5
+    </code>
   </body>
 </html>
