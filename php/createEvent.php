@@ -23,7 +23,7 @@ require_logined_session();
     <script src="node_modules/parsimmon/build/parsimmon.browser.min.js"></script>
     <script src="https://wzrd.in/standalone/superagent@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/2.4.1/riot+compiler.min.js"></script>
-    <script src="https://npmcdn.com/riotcontrol@0.0.3"></script>
+    <script src="https://unpkg.com/riotcontrol@0.0.3"></script>
     <script src="js/general.js"></script>
     <script src="js/api.js"></script>
     <script src="js/shuntingyard.js"></script>
